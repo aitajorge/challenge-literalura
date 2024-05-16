@@ -16,7 +16,7 @@ public class ChallengeliteraluraApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		var consumoApi = new ConsumoAPI();
-		var json = consumoApi.obtenerDatos("git ");
+		var json = consumoApi.obtenerDatos("https://gutendex.com/books/");
 		System.out.println(json);
 	}
 }
