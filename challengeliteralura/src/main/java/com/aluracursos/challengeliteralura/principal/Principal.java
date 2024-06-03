@@ -32,7 +32,14 @@ public class Principal {
             opcion = obtenerOpcionMenu();
 
             switch (opcion) {
-                case 1 -> buscarLibroPorTitulo();
+                case 1 -> {
+                     try {
+                            buscarLibroPorTitulo();
+                        } catch (RuntimeException e) {
+                            System.err.println("Error al buscar el libro: " + e.getMessage());
+                        }
+                    }
+
                 case 2 -> listarLibrosRegistrados();
                 case 3 -> listarAutoresRegistrados();
                 case 4 -> listarAutoresVivosEnAnio();
@@ -117,7 +124,7 @@ public class Principal {
 
     private List<DatosLibro> convertirResponseALibros(GutendexResponse response) {
         return Arrays.stream(response.results())
-                .limit(10)
+
                 .map(result -> new DatosLibro(
                         result.titulo(),
                         result.autores() != null && result.autores().length > 0 ? result.autores()[0] : new Author("Desconocido", null, null),
