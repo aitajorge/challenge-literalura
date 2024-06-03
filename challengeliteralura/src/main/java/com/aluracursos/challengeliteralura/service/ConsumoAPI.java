@@ -1,5 +1,4 @@
 package com.aluracursos.challengeliteralura.service;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,7 +21,6 @@ public class ConsumoAPI {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
         String json = response.body();
         return json;
     }
