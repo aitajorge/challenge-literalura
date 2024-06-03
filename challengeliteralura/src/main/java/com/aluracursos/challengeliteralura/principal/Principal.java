@@ -6,6 +6,7 @@ import com.aluracursos.challengeliteralura.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ public class Principal {
         do {
             mostrarMenuPrincipal();
             opcion = obtenerOpcionMenu();
+
             switch (opcion) {
                 case 1 -> buscarLibroPorTitulo();
                 case 2 -> listarLibrosRegistrados();
@@ -60,6 +62,7 @@ public class Principal {
         return opcion;
     }
 
+
     private void listarLibrosRegistrados() {
         List<Libro> libros = libroRepository.findAllWithLenguajes();
         if (libros.isEmpty()) {
@@ -77,7 +80,6 @@ public class Principal {
             });
         }
     }
-
 
     public void buscarLibroPorTitulo() {
         System.out.println("Título del libro a buscar: ");
@@ -136,7 +138,6 @@ public class Principal {
         libroRepository.saveAll(librosParaGuardar);
     }
 
-
     private void mostrarDetallesLibros(List<DatosLibro> libros) {
         System.out.println("Detalles de los libros:");
         libros.forEach(libro -> {
@@ -157,6 +158,7 @@ public class Principal {
                                 Arrays.equals(libroExistente.getLenguajes(), libro.lenguaje())
                 );
     }
+
     private void listarAutoresRegistrados() {
         List<Libro> libros = libroRepository.findAllWithLenguajes();
         Set<String> autoresRegistrados = new HashSet<>();
@@ -173,13 +175,13 @@ public class Principal {
         teclado.nextLine(); // Consumir el salto de línea después del entero
 
         List<Libro> libros = libroRepository.findAllWithLenguajes();
-        Set<Author> autoresVivos = new HashSet<>();
+        Set<String> autoresVivos = new HashSet<>();
 
         libros.forEach(libro -> {
             Author autor = libro.getAutor();
-            if (autor != null && autor.getAnioNacimiento() != null && autor.getAnioMuerte() != null) {
+            if (autor != null && autor.getAnioNacimiento() != null) {
                 if (autor.getAnioNacimiento() <= anio && (autor.getAnioMuerte() == null || autor.getAnioMuerte() > anio)) {
-                    autoresVivos.add(autor);
+                    autoresVivos.add(autor.getNombre());
                 }
             }
         });
@@ -188,7 +190,7 @@ public class Principal {
             System.out.println("No se encontraron autores vivos en el año " + anio);
         } else {
             System.out.println("Autores vivos en el año " + anio + ":");
-            autoresVivos.forEach(autor -> System.out.println("- " + autor.getNombre()));
+            autoresVivos.forEach(autor -> System.out.println("- " + autor));
         }
     }
 
