@@ -31,6 +31,7 @@ public class Principal {
             mostrarMenuPrincipal();
             opcion = obtenerOpcionMenu();
 
+
             switch (opcion) {
                 case 1 -> {
                      try {
@@ -63,10 +64,14 @@ public class Principal {
     }
 
     private int obtenerOpcionMenu() {
-        System.out.print("Seleccione una opción: ");
-        int opcion = teclado.nextInt();
-        teclado.nextLine(); // Consumir el salto de línea después del entero
-        return opcion;
+        while (true) {
+            try {
+                System.out.print("Seleccione una opción: ");
+                return Integer.parseInt(teclado.nextLine());
+            } catch (NumberFormatException e) {
+                System.err.println("Por favor, ingrese un número válido.");
+            }
+        }
     }
 
 
@@ -79,12 +84,15 @@ public class Principal {
             Set<String> titulosRegistrados = new HashSet<>();
             libros.forEach(libro -> {
                 if (titulosRegistrados.add(libro.getTitulo())) {
+                    System.out.println("--------------------------");
                     System.out.println("Título: " + libro.getTitulo());
                     System.out.println("Autor: " + (libro.getAutor() != null ? libro.getAutor().getNombre() : "Desconocido"));
                     System.out.println("Lenguajes: " + (libro.getLenguajes() != null ? String.join(", ", libro.getLenguajes()) : "Desconocido"));
                     System.out.println();
                 }
             });
+            System.out.println("--------------------------");
+
         }
     }
 
@@ -137,6 +145,7 @@ public class Principal {
         List<Libro> librosParaGuardar = libros.stream()
                 .map(libro -> {
                     Author autor = libro.autor() != null ? libro.autor() : new Author("Desconocido", null, null);
+                    Integer anioNacimiento = autor.getAnioNacimiento() != null ? autor.getAnioNacimiento() : 0;
                     String[] lenguajes = libro.lenguaje() != null && libro.lenguaje().length > 0 ? libro.lenguaje() : new String[]{"Desconocido"};
                     return new Libro(libro.titulo(), autor, lenguajes);
                 })
@@ -172,38 +181,53 @@ public class Principal {
         libros.forEach(libro -> {
             if (libro.getAutor() != null && autoresRegistrados.add(libro.getAutor().getNombre())) {
                 System.out.println("Autor: " + libro.getAutor().getNombre());
+                System.out.println("--------------------------");
             }
         });
     }
 
     private void listarAutoresVivosEnAnio() {
-        System.out.print("Ingrese el año: ");
-        int anio = teclado.nextInt();
-        teclado.nextLine(); // Consumir el salto de línea después del entero
+        while (true) {
+            System.out.print("Ingrese el año: ");
+            String input = teclado.nextLine();
 
-        List<Libro> libros = libroRepository.findAllWithLenguajes();
-        Set<String> autoresVivos = new HashSet<>();
+            try {
+                int anio = Integer.parseInt(input);
 
-        libros.forEach(libro -> {
-            Author autor = libro.getAutor();
-            if (autor != null && autor.getAnioNacimiento() != null) {
-                if (autor.getAnioNacimiento() <= anio && (autor.getAnioMuerte() == null || autor.getAnioMuerte() > anio)) {
-                    autoresVivos.add(autor.getNombre());
+                List<Libro> libros = libroRepository.findAllWithLenguajes();
+                Set<String> autoresVivos = new HashSet<>();
+
+                libros.forEach(libro -> {
+                    Author autor = libro.getAutor();
+                    if (autor != null && autor.getAnioNacimiento() != null) {
+                        if (autor.getAnioNacimiento() <= anio && (autor.getAnioMuerte() == null || autor.getAnioMuerte() > anio)) {
+                            autoresVivos.add(autor.getNombre());
+                        }
+                    }
+                });
+
+                if (autoresVivos.isEmpty()) {
+                    System.out.println("No se encontraron autores vivos en el año " + anio);
+                } else {
+                    System.out.println("--------------------------");
+                    System.out.println("Autores vivos en el año " + anio + ":");
+                    autoresVivos.forEach(autor -> System.out.println("- " + autor));
+                    System.out.println("--------------------------");
                 }
+                break; // Salir del bucle si se ingresó un año válido
+            } catch (NumberFormatException e) {
+                System.err.println("\u001B[31mError: Ingrese un año válido.\u001B[0m");
             }
-        });
-
-        if (autoresVivos.isEmpty()) {
-            System.out.println("No se encontraron autores vivos en el año " + anio);
-        } else {
-            System.out.println("Autores vivos en el año " + anio + ":");
-            autoresVivos.forEach(autor -> System.out.println("- " + autor));
         }
     }
 
 
     private void listarLibrosPorIdioma() {
-        System.out.print("Ingrese el idioma (abreviatura en minúsculas): ");
+        System.out.print("Ingrese el idioma (abreviatura en minúsculas): \n");
+        System.out.println("es - español");
+        System.out.println("en - inglés");
+        System.out.println("fr - francés");
+        System.out.println("pt - portugués");
         String idioma = teclado.nextLine();
 
         List<Libro> libros = libroRepository.findAllWithLenguajes();
@@ -214,11 +238,13 @@ public class Principal {
         if (librosEnIdioma.isEmpty()) {
             System.out.println("No se encontraron libros en el idioma " + idioma);
         } else {
+            System.out.println("-------------------");
             System.out.println("Libros en el idioma " + idioma + ":");
             librosEnIdioma.forEach(libro -> {
                 System.out.println("Título: " + libro.getTitulo());
                 System.out.println("Autor: " + (libro.getAutor() != null ? libro.getAutor().getNombre() : "Desconocido"));
                 System.out.println();
+                System.out.println("-------------------");
             });
         }
     }
