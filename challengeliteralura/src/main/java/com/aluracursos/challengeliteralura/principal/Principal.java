@@ -34,12 +34,12 @@ public class Principal {
 
             switch (opcion) {
                 case 1 -> {
-                     try {
-                            buscarLibroPorTitulo();
-                        } catch (RuntimeException e) {
-                            System.err.println("Error al buscar el libro: " + e.getMessage());
-                        }
+                    try {
+                        buscarLibroPorTitulo();
+                    } catch (RuntimeException e) {
+                        System.err.println("Error al buscar el libro: " + e.getMessage());
                     }
+                }
 
                 case 2 -> listarLibrosRegistrados();
                 case 3 -> listarAutoresRegistrados();
@@ -216,23 +216,42 @@ public class Principal {
                 }
                 break; // Salir del bucle si se ingresó un año válido
             } catch (NumberFormatException e) {
-                System.err.println("\u001B[31mError: Ingrese un año válido.\u001B[0m");
+                // **Mostrar el mensaje de error en rojo sin afectar el color general:**
+                System.err.println("\u001B[37mIngreso inválido; el año debe ser un número entero.\u001B[0m");
             }
         }
     }
 
 
     private void listarLibrosPorIdioma() {
-        System.out.print("Ingrese el idioma (abreviatura en minúsculas): \n");
-        System.out.println("es - español");
-        System.out.println("en - inglés");
-        System.out.println("fr - francés");
-        System.out.println("pt - portugués");
-        String idioma = teclado.nextLine();
+        // Se crea un conjunto con los idiomas válidos
+        Set<String> idiomasValidos = new HashSet<>(Arrays.asList("es", "en", "fr", "pt"));
+
+        boolean idiomaValido = false;
+        String idioma = null;
+
+        do {
+            System.out.print("Ingrese el idioma (abreviatura en minúsculas): \n");
+            System.out.println("es - español");
+            System.out.println("en - inglés");
+            System.out.println("fr - francés");
+            System.out.println("pt - portugués");
+
+            idioma = teclado.nextLine().toLowerCase();
+
+            if (idiomasValidos.contains(idioma)) {
+                idiomaValido = true;
+            } else {
+                System.out.println("Idioma no válido. Ingrese una abreviatura válida.");
+            }
+        } while (!idiomaValido);
+
+        // Capturar una copia final de la variable 'idioma'
+        final String idiomaElegido = idioma;
 
         List<Libro> libros = libroRepository.findAllWithLenguajes();
         List<Libro> librosEnIdioma = libros.stream()
-                .filter(libro -> Arrays.asList(libro.getLenguajes()).contains(idioma))
+                .filter(libro -> Arrays.asList(libro.getLenguajes()).contains(idiomaElegido))
                 .collect(Collectors.toList());
 
         if (librosEnIdioma.isEmpty()) {
